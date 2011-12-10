@@ -3,14 +3,11 @@
  * mongo update 会对值作隐式类型转换，这是一个潜在的陷阱，需要注意
  * @type 
  */
-
 var db = require('../config').db,
 	utilCommon = require('../util/common');
-
 var Service = function(collection){
 	this.collection = db.collection(collection);
 }
-
 Service.prototype = {
 	init : function(collection , options , callback){
 		var self = this;
@@ -58,7 +55,6 @@ Service.prototype = {
 		var page = page ?  page : 1,
 			pageNum = pageNum ?  pageNum : 20 ,
 			options = options ? options : {};
-
 		this.collection.find(options ,{sort:sort,skip:pageNum*(page-1), limit:pageNum}).toArray(function(err, data){
 			callback(err, data);
 		});
@@ -83,7 +79,9 @@ Service.prototype = {
 		this.collection.count(options , function(err, data){
 			callback(err, data);
 		});
-	}
+	},
+    getPrimaryId : function(){
+        return this.primaryId;
+    }
 };
-
 module.exports = Service;

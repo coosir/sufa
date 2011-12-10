@@ -47,7 +47,7 @@ article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{di
 .gb_toolbar .sep_line_r{border-right:1px solid #3C3C3C}
 .gb_toolbar .banner .now_hover a.a_txt{padding-right:4px;border-right:1px solid #1F1F1F}
 .gb_toolbar{position:relative;height:40px;z-index:500;text-align:center;font-size:12px;padding-top:1px;box-shadow:0 1px 2px rgba(0,0,0,.5);-moz-box-shadow:0 1px 2px rgba(0,0,0,.5);-webkit-box-shadow:0 1px 2px rgba(0,0,0,.5)}
-.gb_toolbar .wrap{width:960px;margin:0 auto;text-align:left;zoom:1;min-width:960px;height:40px;position:relative;padding:0 20px}
+.gb_toolbar .wrap{width:1024px;margin:0 auto;text-align:left;zoom:1;min-width:960px;height:40px;position:relative;padding:0 20px}
 .gb_toolbar .fl{float:left}
 .gb_toolbar .fr{float:right}
 .gb_toolbar a{outline:none;cursor:pointer}
@@ -202,4 +202,6 @@ span.main_txt {
     width: 150px;
 }
 div.loading { width:124px;height:124px;position:fixed;bottom:50%;right:50%;}
+
+
 /*! CssGaga 1011113211 *//*  |xGv00|739b70a9b7e161fbb0f95a6bf593a0ea */

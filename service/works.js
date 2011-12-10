@@ -39,7 +39,7 @@ impl.prototype.digg = function(wid , uname, callback){
 	var self = this ;
 	this.collection.findOne({ id : wid } , function(err , data){
 		if(err) { callback(err); return;};
-		if(!data) {callback({noUser: true});return}
+		if(!data) {callback({noUser: true});return;}
 		var work = {};	
 		if(!data.digusers) {
 			data.digusers = {};
@@ -57,6 +57,14 @@ impl.prototype.digg = function(wid , uname, callback){
 			callback({hasDig: true});
 		}
 	});		
+}
+impl.prototype.genWork = function(wid , callback){
+	var self = this;
+	this.collection.findOne({ id : wid } , function(err , data){
+		if(err) { callback(err); return;};
+		if(!data) { callback({notFound:1}); return;}
+		callback(false , data);
+	});
 }
 	
 module.exports = new impl(collectionName);

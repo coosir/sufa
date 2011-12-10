@@ -47,7 +47,7 @@ define(function(require , exports , module){
 			brushImageName: 'Medium'
 		})
 		, getBrush : function (brushName , color) {
-			if (!this[brushName].image || color ) {
+			if (!this[brushName].image || color) {
 				this[brushName].image = Resources.getImage('Brushes', brushName , color);
 				this[brushName].kasureImage = Resources.getImage('KasureBrushes', brushName , color);
 			}
@@ -64,17 +64,22 @@ define(function(require , exports , module){
 			return this.canvas;
 		},
 		createImage: function (url , color) {
-			var image = document.createElement('img');
+			var image = new Image;
 			image.src = url;
 
 			if(color) {
-				var canvas = this.getCanvas(image.width, image.height), 
-					ctx = canvas.getContext('2d');	
-					ctx.drawImage(image , 0 , 0  , image.width, image.height),
-					imageData = ctx.getImageData(0, 0, image.width, image.height ),
-					newImageData = this.setColor(ctx , imageData , color);
-				ctx.putImageData(newImageData , 0 , 0);
-				image.src = canvas.toDataURL();
+				try {
+					var canvas = this.getCanvas(image.width, image.height), 
+						ctx = canvas.getContext('2d');	
+						ctx.drawImage(image , 0 , 0  , image.width, image.height),
+	
+						imageData = ctx.getImageData(0, 0, image.width, image.height ),
+						newImageData = this.setColor(ctx , imageData , color);
+					ctx.putImageData(newImageData , 0 , 0);
+					image.src = canvas.toDataURL();
+				}catch(e){
+					
+				}
 			}
 			return image;
 		} , 

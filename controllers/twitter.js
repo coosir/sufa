@@ -15,7 +15,9 @@ var addWork = function(work , twitterSuccess , req , res){
         t_url : work.t_url,
         dignum : 0 ,
         digusers :{},
-        twitter : work.twitter
+        twitter : work.twitter,
+        history : work.history,
+        paper : work.paper || 0
 	};
 	
 	worksImpl.insert(work, function(err){
@@ -42,12 +44,16 @@ module.exports = [{
 		var fileName = uploadUtil.genRandomFile('.png'),
 			filePath = config.startParams.uploadPath + '/' + fileName,
 			twitter = parseInt(req.param('twitter'),10) == 1 ,
-			blogType = req.session.curUser.blogType;
+			blogType = req.session.curUser.blogType,
+			history = req.param('history'),
+			paper = parseInt(req.param('paper'),10);
 	
 		var work = {
 			fileName : fileName ,
 			t_url : false ,
-			twitter : twitter
+			twitter : twitter ,
+			history : history ,
+			paper : paper
 		};
 		
 		uploadUtil.saveFileFromBase64(filePath , req.param('pic') , function(err){		

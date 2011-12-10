@@ -4,8 +4,10 @@ define(function(require , exports , module){
 		Kazari = require('sufa/Kazari'),
 		$ = require('jquery'),
 		SimpleTmpl = require('third/SimpleTmpl');
+		
 	var strokeEngine , strokeManager , 
 		CanvasTmpl = 'writer-tmpl';
+		
 	var Writer = function(renderTo , options){
 		this.opts = $.extend({
 			idPreffix : 'sufa_' ,
@@ -17,7 +19,8 @@ define(function(require , exports , module){
 			width : 715 ,
 			height : 580 ,
 			toolEnable : false,
-			paper: 1
+			paper: 1 ,
+			autoStart : true
 		},options);
 		this.renderTo = renderTo;
 	};
@@ -65,18 +68,22 @@ define(function(require , exports , module){
 		var canvasE = this.writeCanvas.get(0);
 		var layeredCanvas = this.layerCanvas;
 		var layeredCanvasE = layeredCanvas.get(0);
+		
 		strokeEngine = new StrokeEngine(canvas, {
 			compositedCanvas :layeredCanvasE ,
 			defaultBrush : this.opts.defaultBrush ,
 			stageImage : this.stageImage
 		});
+		
 		strokeEngine.backgroundImage = this.stageImage;
 		strokeManager = new StrokeManager(this.handCanvas, strokeEngine ,{
 			handImage : this.handImage ,
 			stage : this.container
 		});
 		strokeManager.isHandVisible = true;
-		strokeManager.start();
+		
+		if(this.opts.autoStart)
+			strokeManager.start();
 	}
 	Writer.prototype.getStrokenManager = function(){
 		return strokeManager;
@@ -93,12 +100,14 @@ define(function(require , exports , module){
 		this.paper.css('background-image' ,'url('+ url + ')');
 		this.stageImage.attr('src', url);
 		this.paper.data('data-url' , url);
+		this.paperIndex = index;
 	}
 	Writer.prototype.hideCookbook = function(){
 		this.cookbook.fadeOut('fast');
 		return this;
 	}
-	Writer.prototype.clear = function () {
+	
+	Writer.prototype.clear = function (callback) {
 		strokeManager.lock();
 		var layeredE = this.layerCanvas.get(0);
 		var maxSize = 1;
@@ -135,12 +144,27 @@ define(function(require , exports , module){
 				canvas.style.opacity = opacity;
 			})
 			.addScene(function (state) {
+				
 				strokeManager.unlock();
 				strokeManager.clearHistory();
 				canvas.style.opacity = 1;
 				state.onNext();
-			})
+			}).addScene(function (state) {
+				callback && callback();
+				state.onNext();
+			});
 		;
 	}
+	
+	Writer.prototype.playBack = function(callback){
+		this.play(strokeManager.strokeHistory , callback);
+	};
+	
+	Writer.prototype.play = function(history , callback){
+		this.clear(function(){
+			strokeManager.play(history , callback);
+		});
+	};
+	
 	return Writer;
 });

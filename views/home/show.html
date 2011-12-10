@@ -11,7 +11,7 @@
 <script id="worksTmpl"  type="text/tmpl">
 	<% for(var i=0;i<works.length;i++) { var user = works[i].user,dignum = works[i].dignum ? works[i].dignum : 0 , uname = CUSER.blogType + '_' + window.CUSER.name , diggDisable= works[i].digusers ? works[i].digusers[uname] : false , smallPath = 'files/small/' + works[i].fileName.replace('png','jpg');%>
 	<div  username="<%=user.name%>" class="item mark col-0"> 
-	  <a target="_blank" class="image j_image" href="http://<%=Global_Site.domain%>/<%=works[i].path%>"><img  width="124" heigth="124" src="http://<%=Global_Site.domain%>/images/loading.gif" class="loading"><img width="182" height="148" class="j_work" src="http://<%=Global_Site.domain%>/<%=smallPath%>"></a><strong class="title"></strong><span><%if(window.IsLogin){%><a class="j_digg <%if(diggDisable){%>disable<%}%>" wid="<%=works[i].id%>" href="javascript:void(0);" onclick="return false;"><span class="ico ico-dig"></span><span class="j_digg_count"><%=dignum%></span></a><%}%><%=works[i].status%></span>
+	  <a class="image j_image" href="http://<%=Global_Site.domain%>/work/<%=works[i].id%>"><img  width="124" heigth="124" src="http://<%=Global_Site.domain%>/images/loading.gif" class="loading"><img width="182" height="148" class="j_work" src="http://<%=Global_Site.domain%>/<%=smallPath%>"></a><strong class="title"></strong><span><%if(window.IsLogin){%><a class="j_digg <%if(diggDisable){%>disable<%}%>" wid="<%=works[i].id%>" href="javascript:void(0);" onclick="return false;"><span class="ico ico-dig"></span><span class="j_digg_count"><%=dignum%></span></a><%}%><%=works[i].status%></span>
 	  <div class="remarked"> <a target=_blank href="<%=user.t_url%>"><img src="<%=user.profile_image_url%>" class="avatar"></a>来自<%=Sufa.whichApp(works[i].type)%>的<a href="<%=user.t_url%>" target=_blank><%=user.name%></a><%if(works[i].t_url){%>发了一条<a class="myboard" href="<%=works[i].t_url%>">微博</a><%}else{%>创建了一幅作品<%}%></div>
 	  <ul class="comments">
 	  </ul>
@@ -40,7 +40,7 @@
 <div style="clear:both;"></div>
 <canvas id="testCanvas"></canvas>
 <script type = 'text/javascript'>	
-	seajs.use(['page/home.show','jquery'], function(page,$) {
+	seajs.use(['page/home.show','jquery','third/jquery.colorbox','third/SimpleTmpl','components/MoreDataLoader'], function(page,$ , C , S) {
 		page.init({
 	   		page : <<=page>>,
 			size : <<=size>> ,

@@ -125,6 +125,15 @@ module.exports = [{
 		  		res.sendJson(-1 , 'error' , err);
 			else {
 				data.sortType = sortType;
+                for(var i=0;i<data.works.length;i++) {
+                    var user = data.works[i].user;
+                    data.works[i].history = null;
+                    data.works[i].user = {
+                        name : user.name, 
+                        t_url : user.t_url,
+                        profile_image_url : user.profile_image_url
+                    };
+                }
 		  		res.sendJson(0 , 'success'  , data);
 			}
 	  	});

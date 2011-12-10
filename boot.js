@@ -8,7 +8,8 @@ var fs = require('fs')
   , url = require('url')
   , usersImpl = require('./service/users')
   , config = require('./config')
-  , DateFormat = require('./util/dateFormat');
+  , DateFormat = require('./util/dateFormat')
+  , worksImpl = require('./service/works');
   
 /*
 var tsinaApp = { 
@@ -16,19 +17,16 @@ var tsinaApp = {
   secret : '795c1b5b70e0d476db2e30a18c4ea367'
 }
 */
-
 var sinaApp = {
 	key : '1306060637',
 	secret : '0850d7407392fb537bff0762406c567d',
 	blogType: 'tsina'
 }
-
 var qqApp = {
 	key : '801004324',
 	secret : 'f4dccb3a9f1689adcc66dc933b38445e',
 	blogType: 'tqq'
 }
-
 var sohuApp = {
 	key : 'geDQ7cFZ7iruNPHm3lZk',
 	secret : 'iQ%mtL!eh%xVl!SjQN^($Efdw41!#Ytt*r8SMtw8',
@@ -77,7 +75,7 @@ function bootApplication(app) {
 	tapi.init(apps[i].blogType, apps[i].key, apps[i].secret);	
   }
   
-  app.use(express.logger(':method :url :status'));
+ // app.use(express.logger(':method :url :status'));
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(express.cookieParser());
@@ -223,6 +221,7 @@ function setGlobalInfo(options , req, res){
 	options.Global_Page = config.Global_Page;
 	options.Global_Page.path = url.parse(req.url).pathname;
 	options.IsLogin = req.session && typeof(req.session.curUser)!='undefined' ? true : false;
+    options.PrimaryId = worksImpl.getPrimaryId();
 }
 /*
  * Proxy res.render() to config common views path or something else
@@ -236,10 +235,12 @@ function controllerAction(controller , key , action  ) {
         path = __dirname + '/views/' + controller + '/' + view + '.html';
     res.render = function(obj, options, fn){
       res.render = render;
+     options = options || {};
       if (typeof obj === 'string') {
+        
+        setGlobalInfo(options , req, res);
         return res.render(obj, options, fn);
        }
-      options = options || {};      
       for(var name in obj) {
          options[name] = obj[name];
        }

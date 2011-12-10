@@ -22,6 +22,9 @@ define(function(require , exports , module){
 		this.stage = $(this.opts.stage);
 	}
 
+	/**
+	 *  画刷的操作
+	 */
 	StrokeManager.prototype.StrokeOperation = {
 		Stroke    : 0,
 		SetOpacity: 1,
@@ -37,14 +40,13 @@ define(function(require , exports , module){
 	}
 
 	StrokeManager.prototype.selectBrush = function (brushName , color) {
-		/// <summary>Select a brush.</summary>
 		if (this.isLocked) return;
 
 		this.endStroke();
 
 		this.strokeHistory.push({
 			O: this.StrokeOperation.SetBrush,
-			D: brushName
+			D: [brushName,color]
 		});
 
 		return this.strokeEngine.selectBrush(brushName , color);
@@ -53,16 +55,20 @@ define(function(require , exports , module){
 	StrokeManager.prototype.selectBrushColor = function (color) {
 		if (this.isLocked) return;
 		this.endStroke();
+		
+		this.strokeHistory.push({
+			O: this.StrokeOperation.SetBrush,
+			D: [this.strokeEngine.currentBrushName,color]
+		});
+		
 		return this.strokeEngine.selectBrushColor(color);
 	}
 
 	StrokeManager.prototype.getCurrentBrush = function () {
-		/// <summary>Get a current selected brush.</summary>
 		return this.strokeEngine.getCurrentBrush().name;
 	}
 
 	StrokeManager.prototype.setBrushOpacity = function (value) {
-		/// <summary>set a brush opacity.</summary>
 		if (this.isLocked) return;
 
 		this.endStroke();
@@ -76,25 +82,21 @@ define(function(require , exports , module){
 	}
 
 	StrokeManager.prototype.getBrushOpacity = function () {
-		/// <summary>get a brush opacity.</summary>
 		return this.strokeEngine.getBrushOpacity();
 	}
 
 	StrokeManager.prototype.toDataURL = function (withoutBack) {
-		/// <summary>Get Image data URI</summary>
 		return this.strokeEngine.toDataURL(withoutBack);
 	}
 
 	StrokeManager.prototype.clearHistory = function () {
-		/// <summary>Clear Stroke History</summary>
-		/// <return>TheShodo.Shodo.StrokeManager</return>
 		if (this.isLocked) return;
-
+	
+		
 		this.endStroke();
 		this.strokeHistory = [];
 		this.strokeEngine.clear();
 
-		// set current style to History
 		this.setBrushOpacity(this.getBrushOpacity());
 		this.selectBrush(this.getCurrentBrush());
 
@@ -102,8 +104,6 @@ define(function(require , exports , module){
 	}
 
 	StrokeManager.prototype.beginStroke = function () {
-		/// <summary>Begin state of one stroke</summary>
-		/// <return>TheShodo.Shodo.StrokeManager</return>
 		if (this.isLocked) return;
 
 		this.endStroke();
@@ -117,23 +117,16 @@ define(function(require , exports , module){
 	}
 
 	StrokeManager.prototype.addStrokePosition = function (x, y) {
-		/// <summary>Add stroke position to history and render</summary>
-		/// <return>TheShodo.Shodo.StrokeManager</return>
 		if (this.isLocked) return;
 		
 		var pos = { x: x, y: y, t: new Date().valueOf() - this.strokeBeginTime };
 		this.currentStroke.push(pos);
 		this.strokeEngine.addStrokePosition(pos);
 		this.strokeEngine.draw();
-
-		//console.log(pos.x + ', ' + pos.y);
-
 		return this;
 	}
 
 	StrokeManager.prototype.endStroke = function () {
-		/// <summary>End state of one stroke</summary>
-		/// <return>TheShodo.Shodo.StrokeManager</return>
 		if (this.isLocked) return;
 
 		if (!this.isInStroke) return;
@@ -142,6 +135,7 @@ define(function(require , exports , module){
 			O: this.StrokeOperation.Stroke,
 			D: this.currentStroke.map(function (e) { return { X:e.x, Y:e.y, T:e.t }; }) // convert format
 		});
+
 		this.isInStroke = false;
 		this.currentStroke = null;
 		this.strokeEngine.endStroke();
@@ -150,8 +144,6 @@ define(function(require , exports , module){
 	}
 
 	StrokeManager.prototype.undoStroke = function () {
-		/// <summary>Undo Stroke</summary>
-		/// <return>TheShodo.Shodo.StrokeManager</return>
 		if (this.isLocked) return;
 
 		throw "NotSupported";
@@ -165,8 +157,6 @@ define(function(require , exports , module){
 	}
 
 	StrokeManager.prototype.start = function () {
-		/// <summary></summary>
-		/// <return>TheShodo.Shodo.StrokeManager</return>
 		var handCanvasObject = $(this.eventCaptureTarget);
 		var handCanvas = handCanvasObject.get(0);
 
@@ -227,7 +217,96 @@ define(function(require , exports , module){
 			})
 		;
 	}
+	
+	StrokeManager.prototype.drawStroken = function(stroken , callback){		
+		this.strokeEngine.beginStroke();
+		
+		var self = this , 
+			queueCur = 0 , 
+			length = stroken.length ,
+			handE = $(this.handElementSelector);	
+	
+		
+		if (self.isHandVisible) {
+			handE.find('img').hide();
+			handE.find('img.'+self.strokeEngine.currentBrushName).show();
+			handE.show();
+		}
+		
+		var innerFunc = function(){
+			
+			if(queueCur<0 || queueCur >= length) {
+				self.strokeEngine.endStroke();	
+				if (self.isHandVisible)
+					handE.hide();
+				callback();			
+				return;
+			}	  
+			
+			var temp = stroken[queueCur++];
+				timeout = stroken[queueCur-2] ? temp.T - stroken[queueCur-2].T : 0,
+						
+			setTimeout(function(temp){			
+				
+				self.strokeEngine.addStrokePosition({
+					x : parseFloat(temp.X) , 
+					y : parseFloat(temp.Y),
+					t : parseInt(temp.T,10)
+				});		
+				self.strokeEngine.draw();	
+				
+				handE.css('top', parseFloat(temp.Y));
+				handE.css('left', parseFloat(temp.X));
+				innerFunc();	
+			},timeout , temp);					   		
+		};
+		
+		setTimeout(innerFunc ,0);		
+	}
+	
+	StrokeManager.prototype.play = function(history , callback){
+				
+		var self = this;
+		
+		this.lock();
+		
+		var queueCur = 0 , 
+		 	length = history.length;
+	
+		this.strokeHistory = history;
+		
+		var innerFunc = function(){
+			if(queueCur<0 || queueCur >= length) {
+				self.unlock();
+				callback && callback();
+				return;
+			}			
+			
+			var oper = history[queueCur++];
+			switch(parseInt(oper.O,10)) {
+				case self.StrokeOperation.Stroke : {
+					self.drawStroken(oper.D , function(){
+						innerFunc();
+					});
+				};
+				break;
+				case self.StrokeOperation.SetOpacity : {
+					self.strokeEngine.setBrushOpacity(oper.D);
+					innerFunc();
+				};
+				break;
+				case self.StrokeOperation.SetBrush : {
+					self.strokeEngine.selectBrush(oper.D[0] , oper.D[1]);
+					innerFunc();
+				};
+				break;
+			}
+		};
+		
+		setTimeout(innerFunc , 0);
+	}
 
+	/*
 	StrokeManager.prototype.startRx = function () {
 		/// <summary></summary>
 		/// <return>TheShodo.Shodo.StrokeManager</return>
@@ -274,6 +353,7 @@ define(function(require , exports , module){
 
 		return this;
 	}
+	*/
 
 	return StrokeManager;
 });

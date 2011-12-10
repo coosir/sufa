@@ -2,8 +2,8 @@ define(function(require , exports , module){
 	
 	var $ = require('jquery'), 
 		Writer = require('sufa/Writer'), 
-		$Colorbox = require('third/jquery.colorbox'), 
-		rColorpicker = require('third/colorpicker');
+		$Colorbox = require('third/jquery.colorbox'); 
+		//rColorpicker = require('third/colorpicker');
 		
 		
 	var $toolbars = $('#tools'),
@@ -15,12 +15,14 @@ define(function(require , exports , module){
 		$color = $('#colorTools').find('.j_color'),
 		savePanel = $('#savePanel'),
 		defaultColor = '0,0,0',
+		/*
 		reg = /^#(.)\1(.)\2(.)\3$/,
 		colorPicker = rColorpicker.colorpicker(40, 20, 300, defaultColor ,document.getElementById('colorTools')),
 		getRgbStrByHsb = function(clr){
 			var rgbClr = rColorpicker.getRGB(clr);
 			return [rgbClr.r ,rgbClr.g ,rgbClr.b].join(',');
 		},
+		*/
 		$composer = savePanel.find('textarea'),
 		defaultTips = [
 			CUSER.name + '使用了书法应用，你也来练练吧！！网址在这里：http://' + Global_Site.domain + '/',
@@ -38,6 +40,7 @@ define(function(require , exports , module){
 	module.exports = {
 		init: function(id, options){
             var testCanvas = document.getElementById("testCanvas"); 
+            
             if (!testCanvas.getContext){
                  window.location.href="http://"+Global_Site.domain+'/notSupport';
                  return;
@@ -98,7 +101,7 @@ define(function(require , exports , module){
 					$composer.val(defaultTips[Math.floor(Math.random()*defaultTips.length)]);
 				}
 			});      
-            
+
             $toolbars.find('a.j_save_withback').colorbox({
     			title: window.IsLogin ? "点击确定发到" + weiboName: "点击确定发表作品", 
 				width:"400px", 
@@ -169,11 +172,13 @@ define(function(require , exports , module){
 			 
 			var smallData = this._scaleDataUrl(1/4,sendData),
 				sb64 = smallData.substring( 22 );  	
+				
+			var history = writer.getStrokenManager().strokeHistory;
 			
 			 $.ajax({
 				type: 'POST',
 				url: 'status',
-				data: {pic:b64, spic: sb64 , status: val , twitter: savePanel.find('.j_check')[0].checked ? 1 : 0 },
+				data: {pic:b64, spic: sb64 , status: val , history: history , paper: writer.paperIndex , twitter: savePanel.find('.j_check')[0].checked ? 1 : 0 },
 				success: function (res, textStatus, xhr) {
 					if(res.status==0) {
 						alert(res.statusText);

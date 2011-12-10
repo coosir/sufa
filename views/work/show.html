@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>	
+	<<- partial('common/header',{title:'书法'}) >>
+	<link rel="stylesheet" href="http://<<=Global_Site.domain>>/css/paint.css">
+	<link rel="stylesheet" href="http://<<=Global_Site.domain>>/css/colorbox.css">
+	<style>
+		.youyanWrap {
+		    margin: 0 auto;
+		    width: 960px;	    
+		    margin-top:15px;	    
+		}
+	
+		.workWrap {
+			margin:0px auto;width:960px;position:relative;
+		}
+		
+		.workWrap .workPlace {background-color:white;}
+		.workWrap .workPlace img {width:960px;}
+		
+		.authorWrap {
+			position:absolute;left:335px;top:10px;z-index:10;
+		}
+		
+		.authorWrap span {font-size:20px;font-weight:bold;}
+	</style>
+</head>
+<body style="overflow:auto;">
+    <img style="display:none;" src="http://sufa.cnodejs.net/files/f6266f24fa046631bd4088c7173107eb.png">
+	<<- partial('common/top' ,{ zhi : ['永','侠','华','李','鹏','飞','姜','黄'] ,showTools : false}) >>
+    <canvas id="testCanvas"  style="display:none;"> </canvas>
+	<div id="write-paper" class="workWrap">
+		<div id="author" class="authorWrap">
+			<span>作者：</span>
+			<a href="<<=work.user.t_url>>" target=_blank><span><<=work.user.name>></span></a>	
+			<a href="#comment"><span>评论</span></a>
+			<a id="play" href="javascript:void(0);" style="display:none;"><img style="width:20px;height:20px;" class="play" src="http://<<=Global_Site.domain>>/images/play.png"></img></a>
+		</div>
+		<div id="workPlace" class="workPlace">
+			<img src="http://<<=Global_Site.domain>>/<<=work.path>>"></img>
+		</div>	
+	</div>
+	<div id="youyan" class="youyanWrap">
+       <!-- UY BEGIN -->
+        <a name="comment"></a>
+        <div id="uyan_frame"></div>
+        <script type="text/javascript" id="UYScript" src="http://uyan.cc/js/iframe.js?UYUserId=944" async=""></script>
+        <!-- UY END -->
+	</div>
+	<canvas id="testCanvas"></canvas>
+	<script id="writerTmpl" type="text/tmpl">
+		<<- partial('home/sub/writer') >>
+	</script>
+	<script type = 'text/javascript'>	
+		<< if(work.history) {>>
+			seajs.use(['jquery','page/work.show'], function($ , paint) {
+				var work = <<-JSON.stringify(work)>>;	
+				paint.init('#write-paper',{
+					tmpl : 'writerTmpl',
+					toolEnable : false ,
+					paper : work.paper ,
+					history : work.history,
+					showDelay : 0 ,
+					autoStart : false
+				});		
+			});
+		<<} >>
+	</script>
+<<- partial('common/footer') >>
+</body>
+</html>

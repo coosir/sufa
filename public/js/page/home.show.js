@@ -77,10 +77,12 @@ define(function(require , exports , module){
 			});
 			var dataLoader = new MoreDataLoader(opts);
 			 
+			/*
 			 $('#works').delegate('.j_image' ,'click' , function(){
 			 	var $this= $(this) , name = $this.parents('.mark').attr('username');
 			 	$Colorbox(this).colorbox({title: name + '的作品' });
-			 });	 
+			 });
+			 */	 
 		}
 	}
 });
